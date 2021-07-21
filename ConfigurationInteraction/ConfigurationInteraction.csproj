@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Contract\Common.proto" />
+    <None Remove="Contract\Configuration.proto" />
+    <None Remove="Contract\ConfigurationServer.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.38.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Contract\Common.proto">
+      <GrpcServices>Both</GrpcServices>
+    </Protobuf>
+    <Protobuf Include="Contract\Configuration.proto">
+      <GrpcServices>Both</GrpcServices>
+    </Protobuf>
+    <Protobuf Include="Contract\ConfigurationServer.proto">
+      <GrpcServices>Both</GrpcServices>
+    </Protobuf>
+  </ItemGroup>
+
+</Project>

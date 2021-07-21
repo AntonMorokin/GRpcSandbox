@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option csharp_namespace = "ConfigurationInteraction";
+
+package Common;
+
+message Error {
+	optional string code = 1;
+	optional string message = 2;
+}

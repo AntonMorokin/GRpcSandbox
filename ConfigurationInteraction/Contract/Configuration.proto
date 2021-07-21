@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option csharp_namespace = "ConfigurationInteraction";
+
+package Configuration;
+
+message ApplicationConfiguration {
+	optional uint32 maxThreadPoolSize = 1;
+	enum RunningMode {
+		Dev = 0;
+		Stage = 1;
+		Prod = 2;
+	}
+	optional RunningMode mode = 2;
+}
+
+message DatabaseConfiguration {
+	optional string connectionString = 1;
+	optional uint32 timeout = 2;
+}

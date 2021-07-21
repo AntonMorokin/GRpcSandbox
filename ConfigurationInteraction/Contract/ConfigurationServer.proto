@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "Contract/Common.proto";
+import "Contract/Configuration.proto";
+
+option csharp_namespace = "ConfigurationInteraction";
+
+package ConfigurationInteraction;
+
+service ConfigurationServer {
+	rpc LoadConfiguration (LoadConfigurationRequest) returns (LoadConfigurationResponse);
+}
+
+message LoadConfigurationRequest {
+	optional LoadConfigurationRequestHeader header = 1;
+	optional LoadConfigurationRequestBody body = 2;
+}
+
+message LoadConfigurationRequestHeader {
+
+}
+
+message LoadConfigurationRequestBody {
+	string serverName = 1;
+	string serverIp = 2;
+}
+
+message LoadConfigurationResponse {
+	optional LoadConfigurationResponseBody body = 1;
+	repeated Common.Error errors = 2;
+}
+
+message LoadConfigurationResponseBody {
+	optional Configuration.ApplicationConfiguration app = 1;
+	optional Configuration.DatabaseConfiguration database = 2;
+}
