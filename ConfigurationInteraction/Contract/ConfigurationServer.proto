@@ -12,22 +12,15 @@ service ConfigurationServer {
 }
 
 message LoadConfigurationRequest {
-	optional LoadConfigurationRequestHeader header = 1;
-	optional LoadConfigurationRequestBody body = 2;
-}
-
-message LoadConfigurationRequestHeader {
-
-}
-
-message LoadConfigurationRequestBody {
-	string serverName = 1;
-	string serverIp = 2;
+	string clientMachineName = 1;
+	string clientMachineIp = 2;
 }
 
 message LoadConfigurationResponse {
-	optional LoadConfigurationResponseBody body = 1;
-	repeated Common.Error errors = 2;
+	oneof bodyOrError {
+		LoadConfigurationResponseBody body = 1;
+		Common.ErrorContainer errorContainer = 2;
+	}
 }
 
 message LoadConfigurationResponseBody {

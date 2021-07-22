@@ -8,3 +8,7 @@ message Error {
 	optional string code = 1;
 	optional string message = 2;
 }
+
+message ErrorContainer {
+	repeated Error errors = 1;
+}

@@ -27,7 +27,7 @@ namespace ConfigurationServer
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<GreeterService>();
+                endpoints.MapGrpcService<Services.ConfigurationServerImplementation>();
 
                 endpoints.MapGet("/", async context =>
                 {
