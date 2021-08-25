@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  configurationserver:
+    image: ${DOCKER_REGISTRY-}configurationserver
+    build:
+      context: .
+      dockerfile: ConfigurationServer/Dockerfile
+    ports:
+      - "5000:80"
+
+  clientrestserver:
+    image: ${DOCKER_REGISTRY-}clientrestserver
+    build:
+      context: .
+      dockerfile: ClientRestServer/Dockerfile
+    ports:
+      - "6001:443"

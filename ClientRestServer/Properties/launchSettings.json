@@ -24,7 +24,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:6001;http://localhost:6000",
+      "applicationUrl": "https://localhost:6001",
       "dotnetRunMessages": "true"
     },
     "Docker": {
@@ -40,7 +40,7 @@
       "launchUrl": "https://localhost:6001/swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "https://localhost:6001;http://localhost:6000"
+        "ASPNETCORE_URLS": "https://+:6001"
       },
       "distributionName": ""
     }

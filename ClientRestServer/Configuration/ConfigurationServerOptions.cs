@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ClientRestServer.Configuration
 {
@@ -8,7 +7,7 @@ namespace ClientRestServer.Configuration
         public const string SECTION_NAME = "configurationServer";
 
         [Required, Url]
-        public Uri Url { get; init; }
+        public string Url { get; init; }
 
     }
 }
