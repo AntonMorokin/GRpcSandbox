@@ -6,6 +6,8 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using ConfigurationInteraction;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ClientRestServer.Controllers
 {
@@ -21,15 +23,16 @@ namespace ClientRestServer.Controllers
         }
 
         [HttpGet(nameof(LoadConfigurationFromServer))]
-        public async Task<ActionResult<ConfigurationResponseDto>> LoadConfigurationFromServer()
+        public async Task<ActionResult<ConfigurationResponseDto>> LoadConfigurationFromServer(
+            [FromQuery] string ip, [FromQuery] string name)
         {
             var channel = GrpcChannel.ForAddress(_options.Value.Url);
             var client = new ConfigurationServer.ConfigurationServerClient(channel);
 
             var configRequest = new LoadConfigurationRequest
             {
-                ClientMachineIp = "",
-                ClientMachineName = ""
+                ClientMachineIp = ip,
+                ClientMachineName = name
             };
 
             var configResponse = await client.LoadConfigurationAsync(configRequest);
@@ -46,10 +49,15 @@ namespace ClientRestServer.Controllers
                             configResponse.Body.Database.ConnectionString,
                             TimeSpan.FromMilliseconds(configResponse.Body.Database.Timeout));
 
-                        return new ConfigurationResponseDto(appConfig, dbConfig);
+                        return new ConfigurationResponseDto(appConfig, dbConfig, null);
                     }
                 case LoadConfigurationResponse.BodyOrErrorOneofCase.ErrorContainer:
-                    return StatusCode(400);
+                    {
+                        var resultErrors = configResponse.ErrorContainer.Errors
+                            .Select(e => new ErrorDto(e.Code, e.Message)).ToList();
+
+                        return StatusCode(400, new ConfigurationResponseDto(null, null, resultErrors));
+                    };
                 default:
                     return StatusCode(500);
             }
