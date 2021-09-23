@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "ConfigurationInteraction";
 
-package Configuration;
+package ConfigurationModel;
 
 message ApplicationConfiguration {
 	optional uint32 maxThreadPoolSize = 1;

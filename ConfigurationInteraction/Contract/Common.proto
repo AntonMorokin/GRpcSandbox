@@ -12,3 +12,7 @@ message Error {
 message ErrorContainer {
 	repeated Error errors = 1;
 }
+
+message StringList {
+	repeated string values = 1;
+}

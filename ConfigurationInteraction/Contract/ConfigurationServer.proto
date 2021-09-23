@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 import "Contract/Common.proto";
-import "Contract/Configuration.proto";
+import "Contract/ConfigurationModel.proto";
 
 option csharp_namespace = "ConfigurationInteraction";
 
@@ -9,7 +9,10 @@ package ConfigurationInteraction;
 
 service ConfigurationServer {
 	rpc LoadConfiguration (LoadConfigurationRequest) returns (LoadConfigurationResponse);
+	rpc LoadNodesConfiguration (LoadNodesConfigurationRequest) returns (stream LoadNodesConfigurationResponse);
 }
+
+/* ----- LoadConfiguration ----- */
 
 message LoadConfigurationRequest {
 	string clientMachineName = 1;
@@ -24,6 +27,25 @@ message LoadConfigurationResponse {
 }
 
 message LoadConfigurationResponseBody {
-	optional Configuration.ApplicationConfiguration app = 1;
-	optional Configuration.DatabaseConfiguration database = 2;
+	optional ConfigurationModel.ApplicationConfiguration app = 1;
+	optional ConfigurationModel.DatabaseConfiguration database = 2;
+}
+
+/* ----- LoadNodesConfiguration ----- */
+
+message LoadNodesConfigurationRequest {
+	optional Common.StringList NodeNames = 1;
+}
+
+message LoadNodesConfigurationResponse {
+	oneof bodyOrError {
+		LoadNodesConfigurationResponseBody body = 1;
+		Common.ErrorContainer errorContainer = 2;
+	}
+}
+
+message LoadNodesConfigurationResponseBody {
+	string nodeName = 1;
+	optional ConfigurationModel.ApplicationConfiguration app = 2;
+	optional ConfigurationModel.DatabaseConfiguration database = 3;
 }

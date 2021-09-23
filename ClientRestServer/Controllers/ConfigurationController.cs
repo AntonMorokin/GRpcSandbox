@@ -15,19 +15,18 @@ namespace ClientRestServer.Controllers
     [Route("[controller]")]
     public sealed class ConfigurationController : ControllerBase
     {
-        private readonly IOptionsSnapshot<ConfigurationServerOptions> _options;
+        private readonly ConfigurationServer.ConfigurationServerClient _client;
 
         public ConfigurationController(IOptionsSnapshot<ConfigurationServerOptions> options)
         {
-            _options = options;
+            var channel = GrpcChannel.ForAddress(options.Value.Url);
+            _client = new ConfigurationServer.ConfigurationServerClient(channel);
         }
 
         [HttpGet(nameof(LoadConfigurationFromServer))]
-        public async Task<ActionResult<ConfigurationResponseDto>> LoadConfigurationFromServer(
+        public async Task<ActionResult<LoadConfigurationResponseDto>> LoadConfigurationFromServer(
             [FromQuery] string ip, [FromQuery] string name)
         {
-            var channel = GrpcChannel.ForAddress(_options.Value.Url);
-            var client = new ConfigurationServer.ConfigurationServerClient(channel);
 
             var configRequest = new LoadConfigurationRequest
             {
@@ -35,7 +34,7 @@ namespace ClientRestServer.Controllers
                 ClientMachineName = name
             };
 
-            var configResponse = await client.LoadConfigurationAsync(configRequest);
+            var configResponse = await _client.LoadConfigurationAsync(configRequest);
 
             switch (configResponse.BodyOrErrorCase)
             {
@@ -47,16 +46,17 @@ namespace ClientRestServer.Controllers
 
                         var dbConfig = new DatabaseConfigurationDto(
                             configResponse.Body.Database.ConnectionString,
-                            TimeSpan.FromMilliseconds(configResponse.Body.Database.Timeout));
+                            configResponse.Body.Database.Timeout);
 
-                        return new ConfigurationResponseDto(appConfig, dbConfig, null);
+                        return new LoadConfigurationResponseDto(appConfig, dbConfig, null);
                     }
                 case LoadConfigurationResponse.BodyOrErrorOneofCase.ErrorContainer:
                     {
                         var resultErrors = configResponse.ErrorContainer.Errors
-                            .Select(e => new ErrorDto(e.Code, e.Message)).ToList();
+                            .Select(ToClientError)
+                            .ToList();
 
-                        return StatusCode(400, new ConfigurationResponseDto(null, null, resultErrors));
+                        return StatusCode(400, new LoadConfigurationResponseDto(null, null, resultErrors));
                     };
                 default:
                     return StatusCode(500);
@@ -75,6 +75,67 @@ namespace ClientRestServer.Controllers
                     return RunningMode.Prod;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(sourceRunningMode));
+            }
+        }
+
+        private static ErrorDto ToClientError(Error serverError)
+        {
+            return new ErrorDto(serverError.Code, serverError.Message);
+        }
+
+        [HttpGet(nameof(LoadNodesConfigurationFromServer))]
+        public async Task<ActionResult<LoadNodesConfigurationResponseDto>> LoadNodesConfigurationFromServer(
+            [FromQuery] IEnumerable<string> nodeNames = null)
+        {
+            var request = new LoadNodesConfigurationRequest()
+            {
+                NodeNames = new StringList()
+            };
+
+            request.NodeNames.Values.AddRange(nodeNames ?? Enumerable.Empty<string>());
+            
+            var serverResponse = _client.LoadNodesConfiguration(request);
+            var responseStream = serverResponse.ResponseStream;
+
+            var data = new List<LoadNodesConfigurationResponse>();
+
+            while (await responseStream.MoveNext(System.Threading.CancellationToken.None))
+            {
+                data.Add(responseStream.Current);
+            }
+
+            var nodesConfiguration = data.Select(ToNodeConfiguration).ToList();
+            return new LoadNodesConfigurationResponseDto(nodesConfiguration);
+        }
+
+        private static NodeConfigurationDto ToNodeConfiguration(LoadNodesConfigurationResponse response)
+        {
+            switch (response.BodyOrErrorCase)
+            {
+                case LoadNodesConfigurationResponse.BodyOrErrorOneofCase.Body:
+                    {
+                        var appConfig = new ApplicationConfigurationDto(
+                            response.Body.App.MaxThreadPoolSize,
+                            MapConfigurationServerRunningMode(response.Body.App.Mode).ToString());
+
+                        var dbConfig = new DatabaseConfigurationDto(
+                            response.Body.Database.ConnectionString,
+                            response.Body.Database.Timeout);
+
+                        return new NodeConfigurationDto(response.Body.NodeName, appConfig, dbConfig, null);
+                    }
+                case LoadNodesConfigurationResponse.BodyOrErrorOneofCase.ErrorContainer:
+                    {
+                        var resultErrors = response.ErrorContainer.Errors
+                            .Select(ToClientError)
+                            .ToList();
+
+                        return new NodeConfigurationDto(null, null, null, resultErrors);
+                    };
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(response),
+                        $"Unknown value of {nameof(LoadNodesConfigurationResponse.BodyOrErrorOneofCase)}.");
             }
         }
     }

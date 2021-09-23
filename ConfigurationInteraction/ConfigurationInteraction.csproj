@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <None Remove="Contract\Common.proto" />
-    <None Remove="Contract\Configuration.proto" />
+    <None Remove="Contract\ConfigurationModel.proto" />
     <None Remove="Contract\ConfigurationServer.proto" />
   </ItemGroup>
 
@@ -18,7 +18,7 @@
     <Protobuf Include="Contract\Common.proto">
       <GrpcServices>Both</GrpcServices>
     </Protobuf>
-    <Protobuf Include="Contract\Configuration.proto">
+    <Protobuf Include="Contract\ConfigurationModel.proto">
       <GrpcServices>Both</GrpcServices>
     </Protobuf>
     <Protobuf Include="Contract\ConfigurationServer.proto">
