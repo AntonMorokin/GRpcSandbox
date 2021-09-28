@@ -4,9 +4,11 @@ services:
   configurationserver:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+:443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/ssl-certs/ConfigurationServer_Server.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=c676facc-8a7a-4d80-85a3-e888f9eeb16c
     ports:
-      - "5000:80"
+      - "5001:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

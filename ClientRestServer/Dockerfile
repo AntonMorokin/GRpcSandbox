@@ -3,6 +3,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
 EXPOSE 443
+COPY Certificates/ConfigurationServer_Client.crt /usr/local/share/ca-certificates
+RUN update-ca-certificates
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
